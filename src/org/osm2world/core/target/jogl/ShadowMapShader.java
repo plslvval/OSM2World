@@ -1,12 +1,12 @@
 package org.osm2world.core.target.jogl;
 
-import static javax.media.opengl.GL.GL_CCW;
-import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
-import static javax.media.opengl.GL.GL_CULL_FACE;
-import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
-import static javax.media.opengl.GL.GL_DEPTH_TEST;
-import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
-import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
+import static com.jogamp.opengl.GL.GL_CCW;
+import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
+import static com.jogamp.opengl.GL.GL_CULL_FACE;
+import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
+import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -15,8 +15,8 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-import javax.media.opengl.GL;
-import javax.media.opengl.GL3;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL3;
 
 import jogamp.opengl.ProjectFloat;
 
@@ -309,12 +309,12 @@ public class ShadowMapShader extends DepthBufferShader {
 		
 		// camera PMV Matrix:
 		FloatBuffer camPMvMat = FloatBuffer.allocate(16);
-		FloatUtil.multMatrixf(cameraPMV.glGetPMatrixf(), cameraPMV.glGetMvMatrixf(), camPMvMat);
+		FloatUtil.multMatrix(cameraPMV.glGetPMatrixf(), cameraPMV.glGetMvMatrixf(), camPMvMat.array());
 		
 		// transform light into camera space (unit cube)
 		float[] lightPos = {(float)lighting.lightFromDirection.x, (float)lighting.lightFromDirection.y, -(float)lighting.lightFromDirection.z, 0};
 		float[] lightPosCam = new float[4];
-		FloatUtil.multMatrixVecf(camPMvMat, lightPos, lightPosCam);
+		FloatUtil.multMatrixVec(camPMvMat, lightPos, lightPosCam);
 		
 		// set view and projection matrices to light source
 		PMVMatrix pmvMatL = new PMVMatrix();
@@ -404,7 +404,7 @@ public class ShadowMapShader extends DepthBufferShader {
 		ArrayList<VectorXYZ> corners = new ArrayList<VectorXYZ>();
 		for (VectorXYZ corner : primitivesBoundingBox.corners()) {
 			float[] result = new float[4];
-			FloatUtil.multMatrixVecf(lightPMV.glGetMvMatrixf(), new float[]{(float)corner.x, (float)corner.y, (float)corner.z, 1}, result);
+			FloatUtil.multMatrixVec(lightPMV.glGetMvMatrixf(), new float[]{(float)corner.x, (float)corner.y, (float)corner.z, 1}, result);
 			corners.add(new VectorXYZ(result[0]/result[3], result[1]/result[3], result[2]/result[3]));
 		}
 		AxisAlignedBoundingBoxXYZ frustum = new AxisAlignedBoundingBoxXYZ(corners);
@@ -425,11 +425,10 @@ public class ShadowMapShader extends DepthBufferShader {
 		 */
 		FloatBuffer cameraP_inverse = FloatBuffer.allocate(16);
 		FloatBuffer cameraPMV_inverse = FloatBuffer.allocate(16);
-		ProjectFloat p = new ProjectFloat();
-		p.gluInvertMatrixf(cameraPMV.glGetPMatrixf(), cameraP_inverse);
-		FloatUtil.multMatrixf(cameraPMV.glGetMviMatrixf(), cameraP_inverse, cameraPMV_inverse);
+		FloatUtil.invertMatrix(cameraPMV.glGetPMatrixf().array(), cameraP_inverse.array());
+		FloatUtil.multMatrix(cameraPMV.glGetMviMatrixf(), cameraP_inverse, cameraPMV_inverse.array());
 		FloatBuffer NDC2light = FloatBuffer.allocate(16);
-		FloatUtil.multMatrixf(lightPMV.glGetMvMatrixf(), cameraPMV_inverse, NDC2light);
+		FloatUtil.multMatrix(lightPMV.glGetMvMatrixf(), cameraPMV_inverse, NDC2light.array());
 		
 		/*
 		 * transform screen space bounding box to light space
@@ -441,7 +440,7 @@ public class ShadowMapShader extends DepthBufferShader {
 				for (int z = -1; z<=1; z+=2) {
 					float[] NDCcorner = {x, y, z, 1};
 					float[] result = new float[4];
-					FloatUtil.multMatrixVecf(NDC2light, NDCcorner, result);
+					FloatUtil.multMatrixVec(NDC2light, NDCcorner, result);
 					corners.add(new VectorXYZ(result[0]/result[3], result[1]/result[3], -result[2]/result[3]));
 				}
 			}

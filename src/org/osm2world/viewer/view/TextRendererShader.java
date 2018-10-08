@@ -3,18 +3,18 @@ package org.osm2world.viewer.view;
 import java.awt.Color;
 import java.io.IOException;
 
-import javax.media.opengl.GL2ES2;
+import com.jogamp.opengl.GL2ES2;
 
 import com.jogamp.graph.curve.opengl.RenderState;
-import com.jogamp.graph.curve.opengl.TextRenderer;
+import com.jogamp.graph.curve.opengl.RegionRenderer;
 import com.jogamp.graph.font.Font;
 import com.jogamp.graph.font.FontFactory;
 import com.jogamp.graph.font.FontSet;
-import com.jogamp.graph.geom.opengl.SVertex;
+import com.jogamp.graph.geom.SVertex;
 import com.jogamp.opengl.util.glsl.ShaderState;
 
 public class TextRendererShader implements org.osm2world.viewer.view.TextRenderer {
-	private TextRenderer textRenderer;
+    private RegionRenderer regionRenderer;
 	private Font textRendererFont = null;
 	private int width = 0, height = 0;
 	private float scale = 1;
@@ -27,8 +27,9 @@ public class TextRendererShader implements org.osm2world.viewer.view.TextRendere
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		/*
 		RenderState renderState = RenderState.createRenderState(new ShaderState(), SVertex.factory());
-		textRenderer = TextRenderer.create(renderState, 0);
+		textRenderer = new TextRenderer(textRenderFont, true, true);
 		textRenderer.init(gl);
 		if (!textRenderer.isInitialized()) {
 			throw new IllegalStateException("Text renderer not initlialized.");
@@ -37,6 +38,7 @@ public class TextRendererShader implements org.osm2world.viewer.view.TextRendere
 		// Workaround to get shader initialized properly (fixes problems at first drawText call in some situations)
 		textRenderer.enable(gl, true);
 		textRenderer.enable(gl, false);
+		*/
 	}
 
 //	@Override
@@ -49,6 +51,7 @@ public class TextRendererShader implements org.osm2world.viewer.view.TextRendere
 //	}
 
 	protected void drawText(String string, float x, float y, Color color) {
+	    /*
 		textRenderer.enable(gl, true);
 		textRenderer.setColorStatic(gl, color.getRed(), color.getGreen(), color.getBlue());
 		textRenderer.resetModelview(gl);
@@ -57,36 +60,39 @@ public class TextRendererShader implements org.osm2world.viewer.view.TextRendere
 		int[] texSize = {0};
 		textRenderer.drawString3D(gl, textRendererFont, string, posF, (int) (12 * scale), texSize);
 		textRenderer.enable(gl, false);
+	    */
 	}
 	
 	@Override
 	public void destroy() {
+	    /*
 		textRenderer.destroy(gl);
 		textRenderer = null;
 		textRendererFont = null;
 		gl = null;
+	    */
 	}
 
 	@Override
 	public void drawTextTop(String string, float x, float y, Color color) {
-		this.drawText(string, x*scale, height - y*scale, color);
+	    //	this.drawText(string, x*scale, height - y*scale, color);
 	}
 
 	@Override
 	public void drawTextBottom(String string, float x, float y, Color color) {
-		this.drawText(string, x*scale, y*scale, color);
+	    //	this.drawText(string, x*scale, y*scale, color);
 	}
 
 	@Override
 	public void reshape(int width, int height) {
-		this.width = width;
-		this.height = height;
-		textRenderer.reshapeOrtho(gl, width, height, -100000, 100000);
+	    //	this.width = width;
+	    //	this.height = height;
+	    //	textRenderer.reshapeOrtho(gl, width, height, -100000, 100000);
 	}
 
 	@Override
 	public void setScale(float scale) {
-		this.scale = scale;
+	    //	this.scale = scale;
 	}
 
 }
